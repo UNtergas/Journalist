@@ -1,0 +1,144 @@
+.control {
+  font-weight: 500;
+  width: 100%;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  color: var(--mantine-color-text);
+  font-size: var(--mantine-font-size-md);
+  /* background-color: var(--mantine-color-gruvbox-0);  */
+
+  @mixin hover {
+    background-color: var(--mantine-color-gruvbox-2); 
+    border-radius: var(--mantine-radius-sm);
+    color: var(--mantine-color-black);
+  }
+}
+  
+.chevron {
+  transition: transform 200ms ease;
+  color: var(--mantine-color-gray-7);
+}
+  
+
+.nested-0 {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding-left: calc(var(--mantine-spacing-md) * 1);
+  margin-left: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gruvbox-7); 
+  border-left: 1px solid var(--mantine-color-gruvbox-3);
+
+  @mixin hover {
+    /* background-color: var(--mantine-color-gruvbox-1);  */
+    color: var(--mantine-color-black);
+  }
+}
+
+.nested-1 {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding-left: calc(var(--mantine-spacing-md) * 1.5);
+  margin-left: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gruvbox-7); 
+  border-left: 1px solid var(--mantine-color-gruvbox-3);
+
+  @mixin hover {
+    /* background-color: var(--mantine-color-gruvbox-1);  */
+    color: var(--mantine-color-black);
+  }
+}
+
+.nested-2 {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding-left: calc(var(--mantine-spacing-md) * 2);
+  margin-left: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gruvbox-7); 
+  border-left: 1px solid var(--mantine-color-gruvbox-3);
+
+  @mixin hover {
+    /* background-color: var(--mantine-color-gruvbox-1);  */
+    color: var(--mantine-color-black);
+  }
+}
+
+.nested-3 {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding-left: calc(var(--mantine-spacing-md) * 2.5);
+  margin-left: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gruvbox-7); 
+  border-left: 1px solid var(--mantine-color-gruvbox-3);
+
+  @mixin hover {
+    /* background-color: var(--mantine-color-gruvbox-1);  */
+    color: var(--mantine-color-black);
+  }
+}
+
+.link-0{
+  font-weight: 500;
+  display: block;
+  text-decoration: none;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding-left: calc(var(--mantine-spacing-md) * 1);
+  margin-left: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gruvbox-7); 
+  border-left: 1px solid var(--mantine-color-gruvbox-3);
+
+  @mixin hover {
+    background-color: var(--mantine-color-gruvbox-1); 
+    color: var(--mantine-color-black);
+  }
+}
+
+.link-1{
+  font-weight: 500;
+  display: block;
+  text-decoration: none;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding-left: calc(var(--mantine-spacing-md) * 1.5);
+  margin-left: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gruvbox-7); 
+  border-left: 1px solid var(--mantine-color-gruvbox-3);
+
+  @mixin hover {
+    background-color: var(--mantine-color-gruvbox-1); 
+    color: var(--mantine-color-black);
+  }
+}
+
+.link-2{
+  font-weight: 500;
+  display: block;
+  text-decoration: none;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding-left: calc(var(--mantine-spacing-md) * 2);
+  margin-left: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gruvbox-7); 
+  border-left: 1px solid var(--mantine-color-gruvbox-3);
+
+  @mixin hover {
+    background-color: var(--mantine-color-gruvbox-1); 
+    color: var(--mantine-color-black);
+  }
+}
+
+.link-3{
+  font-weight: 500;
+  display: block;
+  text-decoration: none;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding-left: calc(var(--mantine-spacing-md) * 2.5);
+  margin-left: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gruvbox-7); 
+  border-left: 1px solid var(--mantine-color-gruvbox-3);
+
+  @mixin hover {
+    background-color: var(--mantine-color-gruvbox-1); 
+    color: var(--mantine-color-black);
+  }
+}

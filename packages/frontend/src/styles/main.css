@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* *,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+} */
+
+html,body {
+  /* font-size: 62.5%; */
+  scroll-behavior: smooth;
+  overflow: auto !important;
+  position: relative !important;
+}
+

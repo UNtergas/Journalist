@@ -1,0 +1,57 @@
+{
+  "name": "Project Option",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "________________LINTING_______________": "",
+    "lint": "pnpm -r lint",
+    "________________PRODUCTION______________": "",
+    "prod:all":"concurrently --kill-others \"pnpm run prod:back\" \"pnpm run prod:front\"",
+    "prod:back": "pnpm --filter backend start",
+    "prod:front": "pnpm --filter frontend start",
+    "________________BUILDING______________": "",
+    "build": "pnpm run build:shared && pnpm install && pnpm run build:front && pnpm run clean:back",
+    "build:shared": "pnpm run build:shared:back && pnpm run build:shared:front",
+    "build:shared:back": "pnpm --filter @shared/backend install && pnpm --filter @shared/backend build",
+    "build:shared:front": "pnpm --filter @shared/frontend install && pnpm --filter @shared/frontend build",
+    "build:front": "pnpm --filter frontend build",
+    "clean:back": "pnpm --filter backend clean",
+    "__________________DEV_________________": "",
+    "dev:all": "concurrently --kill-others \"pnpm run dev:back\" \"pnpm run dev:front\"",
+    "dev:front": "pnpm --filter frontend dev",
+    "dev:back": "pnpm --filter backend start:dev",
+    "__________________TEST________________": "",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "UNtergas",
+  "license": "ISC",
+  "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b",
+  "eslintIgnore": [
+    "node_modules",
+    "dist",
+    ".next",
+    "out"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.7.9",
+    "@typescript-eslint/eslint-plugin": "^8.11.0",
+    "@typescript-eslint/parser": "^8.11.0",
+    "concurrently": "^9.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "15.0.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "typescript-node": "^0.1.3"
+  },
+  "dependencies": {
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0"
+  }
+}

@@ -1,0 +1,330 @@
+#!/bin/bash
+ #############################################################################
+ ## runner script for running development, production, test environment     ##
+ ## by Anh Tuan                                                             ##
+ #############################################################################
+
+# Project location
+
+# Dir containing this script
+SCRIPT_DIR="$(dirname $0)"
+
+cd "${SCRIPT_DIR}"
+
+# Root project dir
+ROOT_PROJECT="$(pwd)"
+export ROOT_PROJECT
+
+
+################## Docker configuration #############################
+
+# DOCKER COMPOSE FILE
+DOCKER_COMPOSE_DEV="${ROOT_PROJECT}/infrastructure/docker-compose.dev.yaml"
+DOCKER_COMPOSE_PROD="${ROOT_PROJECT}/infrastructure/docker-compose.prod.yaml"
+# DOCKER IMAGE
+DOCKER_IMAGE="option-monorepo-image:1.0"
+export DOCKER_IMAGE
+
+# DOCKER USER
+export DOCKER_UID="$UID"
+export DOCKER_GID="$GID"
+
+
+
+##################Nginx configuration #############################
+
+# TLS certificates
+TLS_DIR="${ROOT_PROJECT}/infrastructure/ssl"
+export TLS_DIR
+CERT_FILE="certificate.crt"
+KEY_FILE="private.key"
+
+# Define the local hostname
+
+#dev
+LOCAL_HOSTNAME_DEV="localdev.me"
+#prod
+LOCAL_HOSTNAME_PROD="localhost"
+export LOCAL_HOSTNAME_DEV
+export LOCAL_HOSTNAME_PROD
+
+check_and_assign_local_host() {
+    if ! grep -q "$LOCAL_HOSTNAME" /etc/hosts; then
+        echo "Adding $LOCAL_HOSTNAME to /etc/hosts..."
+        echo "127.0.0.1    $LOCAL_HOSTNAME" | sudo tee -a /etc/hosts > /dev/null
+        echo "$LOCAL_HOSTNAME added successfully!"
+    else
+        echo "$LOCAL_HOSTNAME already exists in /etc/hosts."
+    fi
+}
+# Location of nginx files
+NGINX_DEV="${ROOT_PROJECT}/infrastructure/nginx.dev.conf"
+export NGINX_DEV
+NGINX_PROD="${ROOT_PROJECT}/infrastructure/nginx.prod.conf"
+export NGINX_PROD 
+# Check if the script is run as root
+
+if [ "$EUID" -eq 0 ]; then
+  echo "Error: Do not run this script as root or with sudo."
+  echo "Please run the script as a normal user with the necessary permissions."
+  exit 1
+fi
+
+create_tls_certificates() {
+  if [[ ! -d "$TLS_DIR" ]]; then
+      mkdir -p "$TLS_DIR"
+  fi
+#  cd "$TLS_DIR"
+  openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout "$TLS_DIR/$KEY_FILE" -out "$TLS_DIR/$CERT_FILE"
+  echo ""
+  echo "TLS key and cert created successfully !"
+}
+
+auto_check_and_generate_tls() {
+    if [[ -z "$TLS_DIR" ]]; then
+        echo "Error: TLS_DIR is not set."
+        exit 1
+    fi
+
+    # Ensure the TLS directory exists
+    if [[ ! -d "$TLS_DIR" ]]; then
+        mkdir -p "$TLS_DIR"
+    fi
+
+    # Check if the TLS key and certificate exist
+    if [[ ! -f "$TLS_DIR/$KEY_FILE" || ! -f "$TLS_DIR/$CERT_FILE" ]]; then
+        echo "TLS key and certificate not found. Generating new certificates..."
+        openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 \
+            -keyout "$TLS_DIR/$KEY_FILE" -out "$TLS_DIR/$CERT_FILE"
+
+        if [[ $? -eq 0 ]]; then
+            echo "TLS key and certificate generated successfully!"
+        else
+            echo "Error: Failed to generate TLS certificates."
+            exit 1
+        fi
+    else
+        echo "TLS key and certificate already exist."
+    fi
+}
+
+display_help() {
+  echo "Usage: ./runner [COMMAND]"
+  echo ""
+  echo " Runner script  to run application in the dev, prod or test environment"
+  echo ""
+  echo "Commands:"
+  echo "  help                 Display this help message and exit"
+  echo "  dev                  Run the application in the local development environment"
+  echo "  prod                 Build and run the application in production mode with Nginx serving the frontend"
+  echo "  clean                Remove build artifacts, node_modules, docker-volume and clean the environment"
+  echo ""
+  echo "Options:"
+  echo "  -h, --help           Display this help message"
+  echo ""
+  echo "Examples:"
+  echo "  ./runner cert        Create TLS certificates for the development environment"
+  echo "  ./runner dev         Rebuild the app and start the app in development mode"
+  echo "  ./runner clean       Remove all build artifacts and node_modules to clean the environment"
+  echo "  ./runner up          Start the existing container app in development mode"
+  echo "  ./runner backend     Start only the frontend in development mode"
+  echo "  ./runner frontend    Start only the backend in development mode"
+  echo "  ./runner prod        Build and run the app in production mode"s
+  echo "  ./runner down        Stop the running container"
+  echo ""
+  echo "Important Notes"
+  echo "- Don't run  with 'sudo'"
+}
+
+clean_app(){
+  read -r -p "Data on dev database will be lost. Proceed? (y/n): " proceed
+    if [[ "$proceed" =~ ^[yY]$ ]]; then
+      docker compose -f "${DOCKER_COMPOSE_DEV}" down -t 1 --volumes --remove-orphans
+
+      sudo rm -rf node_modules packages/*/node_modules  packages/shared/*/node_modules
+      sudo rm -rf packages/*/dist packages/shared/*/dist
+      sudo rm -rf packages/*/buildCache
+      sudo rm -rf packages/frontend/.next
+      sudo rm -rf pnpm-lock.yaml .pnpm-store
+#      sudo docker volume remove postgres_data
+      echo "Project is deep cleaned !"
+    fi
+}
+
+clean_prod(){
+
+  sudo rm -rf node_modules packages/*/node_modules  packages/shared/*/node_modules
+  sudo rm -rf packages/*/dist packages/shared/*/dist
+  sudo rm -rf packages/*/buildCache
+  sudo rm -rf packages/frontend/.next
+  sudo rm -rf pnpm-lock.yaml .pnpm-store
+#      sudo docker volume remove postgres_data
+  echo "Project is deep cleaned !"
+}
+
+
+prune_docker_images() {
+    local images=("$@")
+
+    for image in "${images[@]}"; do
+        if docker image inspect "$image" > /dev/null 2>&1; then
+            docker rmi -f "$image"
+        else
+            echo "Image $image not found, skipping..."
+        fi
+    done
+}
+
+
+clean_dev(){
+  auto_check_and_generate_tls
+  check_and_assign_local_host
+  # Convert the comma-separated string into an array
+  IFS=',' read -r -a images_to_prune <<< "$DOCKER_IMAGE"
+  prune_docker_images "${images_to_prune[@]}"
+
+  export DOCKER_DEV_ENTRY_CMD="pnpm i && pnpm run build:shared && pnpm i && pnpm run clean:back &&pnpm run dev:all"
+  mkdir -p node_modules
+
+  # Call the function
+  docker compose -f "${DOCKER_COMPOSE_DEV}" build --no-cache
+  docker compose -f "${DOCKER_COMPOSE_DEV}" up --remove-orphans -d
+  docker compose -f "${DOCKER_COMPOSE_DEV}" logs -f mono-app 
+  docker compose -f "${DOCKER_COMPOSE_DEV}" down -t 1
+}
+
+run_prod(){
+  # auto_check_and_generate_tls
+  # check_and_assign_local_host
+  IFS=',' read -r -a images_to_prune <<< "$DOCKER_IMAGE"
+  prune_docker_images "${images_to_prune[@]}"
+  export DOCKER_PROD_ENTRY_CMD="pnpm i && pnpm run build && pnpm run prod:all"
+  mkdir -p node_modules
+  docker compose -f "${DOCKER_COMPOSE_DEV}" build --no-cache
+  docker compose -f "${DOCKER_COMPOSE_PROD}" up --remove-orphans -d
+  # docker compose -f "${DOCKER_COMPOSE_DEV}" logs -f mono-app
+}
+
+
+check_requirements(){
+  if [[ ! -f "${ROOT_PROJECT}/.env" ]]; then
+    echo "Error: .env file not found in the root project directory."
+    exit 1
+  fi
+
+  echo "Requirements check passed successfully!"
+}
+
+sym_env(){
+  ln -sf "${ROOT_PROJECT}"/.env "${ROOT_PROJECT}"/packages/backend/.env
+  ln -sf "${ROOT_PROJECT}"/.env "${ROOT_PROJECT}"/packages/frontend/.env
+}
+
+
+up_dev(){
+  export DOCKER_DEV_ENTRY_CMD="pnpm run build:shared && pnpm i && pnpm run dev:all"
+  mkdir -p node_modules
+  docker compose -f "${DOCKER_COMPOSE_DEV}" up --remove-orphans -d
+  # docker compose -f "${DOCKER_COMPOSE_DEV}" logs -f mono-app -f nginx -f db
+  docker compose -f "${DOCKER_COMPOSE_DEV}" logs -f mono-app 
+  docker compose -f "${DOCKER_COMPOSE_DEV}" down -t 1
+}
+
+
+
+down(){
+  docker compose -f "${DOCKER_COMPOSE_DEV}" down -t 1
+}
+
+run_backend(){
+  export DOCKER_DEV_ENTRY_CMD="pnpm run build:shared && pnpm i && pnpm run dev:back"
+  mkdir -p node_modules
+  docker compose -f "${DOCKER_COMPOSE_DEV}" up --remove-orphans -d
+  docker compose -f "${DOCKER_COMPOSE_DEV}" logs -f mono-app 
+  docker compose -f "${DOCKER_COMPOSE_DEV}" down -t 1
+}
+
+run_frontend(){
+  export DOCKER_DEV_ENTRY_CMD="pnpm run build:shared && pnpm i && pnpm run dev:front"
+  mkdir -p node_modules
+  docker compose -f "${DOCKER_COMPOSE_DEV}" up --remove-orphans -d
+  docker compose -f "${DOCKER_COMPOSE_DEV}" logs -f mono-app 
+  docker compose -f "${DOCKER_COMPOSE_DEV}" down -t 1
+}
+
+
+if [[ "$1" = "help" || "$1" = "--help" || "$1" = "-h" ]]; then
+  display_help
+  exit 0
+
+
+elif [[ "$1" = "clean" ]]; then
+  clean_app
+  exit 0
+
+elif [[ "$1" = "dev" ]]; then
+  check_requirements
+  if [[ $? -eq 0 ]] then
+    sym_env
+    clean_dev
+  else
+    echo "Requirements check failed!"
+    exit 1
+  fi
+  exit 0
+
+elif [[ "$1" = "prod" ]]; then
+  check_requirements
+  if [[ $? -eq 0 ]] then
+    clean_prod --force-proceeed
+    sym_env
+    run_prod
+  else
+    echo "Requirements check failed!"
+    exit 1
+  fi
+  exit 0
+
+elif [[ "$1" = "backend" ]]; then
+  check_requirements
+  if [[ $? -eq 0 ]] then
+    sym_env
+    run_backend
+  else
+    echo "Requirements check failed!"
+    exit 1
+  fi
+  exit 0
+
+elif [[ "$1" = "frontend" ]]; then
+  check_requirements
+  if [[ $? -eq 0 ]] then
+    sym_env
+    run_frontend
+  else
+    echo "Requirements check failed!"
+    exit 1
+  fi
+  exit 0
+
+elif [[ "$1" = "down" ]]; then
+  down
+  exit 0
+
+elif [[ "$1" = "up" ]]; then
+  check_requirements
+  if [[ $? -eq 0 ]] then
+    sym_env
+    up_dev
+  else
+    echo "Requirements check failed!"
+    exit 1
+  fi
+  exit 0
+
+elif [[ "$1" = "cert" ]]; then
+  create_tls_certificates
+else
+    echo 'Use --help to see available options'
+fi
+

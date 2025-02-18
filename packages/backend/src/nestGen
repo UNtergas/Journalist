@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Check if the name is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <NAME>"
+  exit 1
+fi
+
+NAME=$1
+NAME_LOWER=$(echo "$NAME" | tr '[:upper:]' '[:lower:]')
+
+# Generate Controller
+npx nest generate controller "$NAME_LOWER"
+
+# Generate Service
+npx nest generate service "$NAME_LOWER" 
+
+# Generate Module
+npx nest generate module "$NAME_LOWER"
+
+echo "Generated $NAME controller, service, and module successfully!"

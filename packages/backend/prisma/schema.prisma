@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  COMPANY
+  ADMIN
+  TUTOR
+}
+
+
+
+model User {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String
+
+  role     Role
+
+  mission_apprentice Mission[]     @relation("Apprentice")
+  mission_company Mission[]        @relation("Company")  
+
+
+  activities Activity[]
+  feedbacks Feedback[]
+  validatedCompetencies SkillValidation[] @relation("Validated")
+  validatorCompetencies SkillValidation[] @relation("Validator")
+
+  tutor User? @relation("Tutor", fields: [tutorId], references: [id])
+  tutorId Int?
+  apprentices User[] @relation("Tutor")
+}
+
+model Mission{
+  id            Int       @id @default(autoincrement())
+  title         String
+  description   String
+  semester      String
+  apprentice    User      @relation("Apprentice",fields: [apprenticeId], references: [id])
+  apprenticeId  Int
+  company       User      @relation("Company",fields: [companyId], references: [id])
+  companyId     Int
+
+  activities    Activity[]
+  skills        SkillOnMission[]
+}
+
+model Activity {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  date        DateTime  @default(now())
+  phase       Phase
+  // Relations
+  apprentice        User      @relation(fields: [apprenticeId], references: [id])
+  apprenticeId      Int
+  mission           Mission   @relation(fields: [missionId], references: [id])
+  missionId         Int
+  skills SkillOnActivity[]
+  feedbacks   Feedback[]
+}
+
+enum Phase {
+  STUDY
+  ACTION
+  IMPROVEMENT
+}
+
+enum SkillType {
+  ANALYTICAL
+  PLANNING
+  ADHESION
+  RESOURCE_MANAGEMENT
+  INFOMATION_PROCESSING
+  RISK_MANAGEMENT
+  OPERATION_IMPLEMENTATION
+  CONTROL
+  CORRECTION
+  MONITORING
+}
+
+enum Level {
+  BASIC
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+model Skill {
+  id          Int      @id @default(autoincrement())
+  type        SkillType
+  level       Level
+  description String
+  activities  SkillOnActivity[]
+  missions    SkillOnMission[]
+  validation  SkillValidation? 
+}
+
+model SkillOnActivity{
+  skill       Skill @relation(fields: [skillId], references: [id])
+  skillId     Int
+  activity    Activity @relation(fields: [activityId], references: [id])
+  activityId  Int
+
+  @@id([skillId, activityId])
+}
+
+model SkillOnMission{
+  skill      Skill @relation(fields: [skillId], references: [id])
+  skillId    Int
+  mission    Mission @relation(fields: [missionId], references: [id])
+  missionId  Int
+
+  @@id([skillId, missionId])
+}
+
+model Feedback {
+  id          Int      @id @default(autoincrement())
+  content     String
+  createdAt   DateTime @default(now())
+
+  sender      User     @relation(fields: [senderId], references: [id])
+  senderId    Int      
+  activity    Activity @relation(fields: [activityId], references: [id])
+  activityId  Int
+}
+
+model SkillValidation {
+  id           Int      @id @default(autoincrement())
+  validatedAt  DateTime @default(now())
+  validatedLevel Level
+
+  apprentice         User     @relation("Validated", fields: [apprenticeId], references: [id])
+  apprenticeId       Int
+  validator    User     @relation("Validator", fields: [validatorId], references: [id])
+  validatorId  Int
+  skill        Skill    @relation(fields: [skillId], references: [id])
+  skillId      Int      @unique
+}

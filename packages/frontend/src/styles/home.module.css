@@ -1,0 +1,18 @@
+.root{
+    height: 100vh;
+    position: relative;
+}
+
+.logo{
+    position: absolute;
+    top: 5%;
+    left: 3%;
+}
+
+.buttonArea{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}

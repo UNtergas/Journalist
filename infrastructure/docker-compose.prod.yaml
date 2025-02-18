@@ -1,0 +1,47 @@
+services:
+  mono-app:
+    image: "${DOCKER_IMAGE}"
+    container_name: option-monorepo
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM  node:22-slim
+        RUN npm install -g pnpm
+        RUN apt-get update && apt-get install -y --no-install-recommends \
+                    openssl \
+                    ca-certificates \
+                    zlib1g \
+                    libgcc-s1 \
+                    libc6 \
+                    procps \
+                    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    volumes:
+      - "${ROOT_PROJECT}:${ROOT_PROJECT}:Z"
+    command: sh -c "cd ${ROOT_PROJECT} && ${DOCKER_PROD_ENTRY_CMD}"
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    user: "${DOCKER_UID}:${DOCKER_GID}"
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    depends_on:
+        - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  db:
+    image: postgres:15
+    container_name: project-option-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: app-mono
+      POSTGRES_USER: mono
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
+    name: project-option-postgres-data
