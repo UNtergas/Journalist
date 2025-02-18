@@ -13,49 +13,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  STUDENT
-  COMPANY
-  ADMIN
-  TUTOR
-}
 
 
 
 model User {
-  id       Int    @id @default(autoincrement())
-  name     String
-  email    String @unique
-  password String
+  id        Int     @id @default(autoincrement())
+  name      String
+  company   String
+  school    String
+  specialty String
+  email     String  @unique
+  password  String
 
-  role     Role
+  missions Mission[]     
 
-  mission_apprentice Mission[]     @relation("Apprentice")
-  mission_company Mission[]        @relation("Company")  
-
-
-  activities Activity[]
-  feedbacks Feedback[]
-  validatedCompetencies SkillValidation[] @relation("Validated")
-  validatorCompetencies SkillValidation[] @relation("Validator")
-
-  tutor User? @relation("Tutor", fields: [tutorId], references: [id])
-  tutorId Int?
-  apprentices User[] @relation("Tutor")
 }
 
 model Mission{
   id            Int       @id @default(autoincrement())
   title         String
   description   String
-  semester      String
-  apprentice    User      @relation("Apprentice",fields: [apprenticeId], references: [id])
-  apprenticeId  Int
-  company       User      @relation("Company",fields: [companyId], references: [id])
-  companyId     Int
+  from          DateTime  @default(now())
+  to            DateTime
+  user   User      @relation(fields: [userId], references: [id])
+  userId  Int
 
   activities    Activity[]
-  skills        SkillOnMission[]
 }
 
 model Activity {
@@ -63,20 +46,21 @@ model Activity {
   title       String
   description String
   date        DateTime  @default(now())
-  phase       Phase
   // Relations
-  apprentice        User      @relation(fields: [apprenticeId], references: [id])
-  apprenticeId      Int
+
   mission           Mission   @relation(fields: [missionId], references: [id])
   missionId         Int
+
   skills SkillOnActivity[]
-  feedbacks   Feedback[]
+  notes   Note[]
 }
 
-enum Phase {
-  STUDY
-  ACTION
-  IMPROVEMENT
+model Note {
+  id          Int      @id @default(autoincrement())
+  content     String
+     
+  activity    Activity @relation(fields: [activityId], references: [id])
+  activityId  Int
 }
 
 enum SkillType {
@@ -105,8 +89,6 @@ model Skill {
   level       Level
   description String
   activities  SkillOnActivity[]
-  missions    SkillOnMission[]
-  validation  SkillValidation? 
 }
 
 model SkillOnActivity{
@@ -118,35 +100,7 @@ model SkillOnActivity{
   @@id([skillId, activityId])
 }
 
-model SkillOnMission{
-  skill      Skill @relation(fields: [skillId], references: [id])
-  skillId    Int
-  mission    Mission @relation(fields: [missionId], references: [id])
-  missionId  Int
 
-  @@id([skillId, missionId])
-}
 
-model Feedback {
-  id          Int      @id @default(autoincrement())
-  content     String
-  createdAt   DateTime @default(now())
 
-  sender      User     @relation(fields: [senderId], references: [id])
-  senderId    Int      
-  activity    Activity @relation(fields: [activityId], references: [id])
-  activityId  Int
-}
 
-model SkillValidation {
-  id           Int      @id @default(autoincrement())
-  validatedAt  DateTime @default(now())
-  validatedLevel Level
-
-  apprentice         User     @relation("Validated", fields: [apprenticeId], references: [id])
-  apprenticeId       Int
-  validator    User     @relation("Validator", fields: [validatorId], references: [id])
-  validatorId  Int
-  skill        Skill    @relation(fields: [skillId], references: [id])
-  skillId      Int      @unique
-}
