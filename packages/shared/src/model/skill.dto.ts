@@ -1,6 +1,4 @@
 import { SkillOnActivity } from "./skillOnActivity.dto";
-import { SkillOnMission } from "./skillOnMission.dto";
-import { SkillValidation } from "./skillValidation.dto";
 
 export const SKILLTYPE = {
   ANALYTICAL: 'ANALYTICAL',
@@ -30,12 +28,6 @@ export class Skill {
     level : Level;
     description: string;
     activities: SkillOnActivity[];
-    missions: SkillOnMission[];
-    validation?: SkillValidation;
 }
 
-export type SkillValidationMap = {
-    skillType: SkillType;
-    validatedLevel: Level;
-}
 export type SkillCreate = Pick<Skill, 'level'|'type'|'description'>;
