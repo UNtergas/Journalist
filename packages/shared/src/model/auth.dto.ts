@@ -1,24 +1,22 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { z } from 'zod';
 
-export interface SignInResponse {
+export class SignInResponse {
   token: string;
   email: string;
   id: number;
 }
 
+export const signInSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+})
+.required();
 
-export class SignInDTO {
+export const registerSchema = signInSchema.extend({
+  name: z.string(),
+})
+.required();
 
-  @IsEmail()
-  email: string;
+export type SignInDTO = z.infer<typeof signInSchema>
+export type RegisterDTO = z.infer<typeof registerSchema>
 
-  @IsString()
-  @IsNotEmpty()
-  password: string;
-}
-
-export class RegisterDTO extends SignInDTO {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-}

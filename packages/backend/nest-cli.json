@@ -8,6 +8,13 @@
       {
         "name": "@nestjs/swagger"
       }
-    ]
+    ],
+    "assets": [
+      {
+        "include": "mail/templates/**/*",
+        "outDir": "dist/src"
+      }
+    ],
+    "watchAssets": true
   }
 }

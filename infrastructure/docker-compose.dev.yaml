@@ -30,6 +30,7 @@ services:
       - 1.1.1.1
     depends_on:
         - db
+        - maildev
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -57,6 +58,14 @@ services:
     depends_on:
       - mono-app
     hostname: "${LOCAL_HOSTNAME_DEV}"
+
+  maildev:
+    image: maildev/maildev:latest
+    container_name: maildev
+    ports:
+      - "1080:1080" # Web UI
+      - "1025:1025" # SMTP Server
+
 volumes:
   postgres-data:
     name: journalist-postgres-data

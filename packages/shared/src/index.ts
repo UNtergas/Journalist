@@ -1,7 +1,7 @@
 // Utils
 
 export * from "./utils/Exception";
-
+export * from "./utils/flatEnumToList";
 export * from "./utils/emailValidator";
 
 // DTOS 

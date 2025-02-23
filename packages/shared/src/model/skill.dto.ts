@@ -1,4 +1,6 @@
+import { z } from "zod";
 import { SkillOnActivity } from "./skillOnActivity.dto";
+import { flatEnumToList } from "../utils/flatEnumToList";
 
 export const SKILLTYPE = {
   ANALYTICAL: 'ANALYTICAL',
@@ -30,4 +32,13 @@ export class Skill {
     activities: SkillOnActivity[];
 }
 
-export type SkillCreate = Pick<Skill, 'level'|'type'|'description'>;
+export const skillCreationSchema = z.object({
+  level: z.enum(flatEnumToList(LEVEL)),
+  type: z.enum(flatEnumToList(SKILLTYPE)),
+  description: z.string()
+})
+.required();
+
+export type SkillCreation = z.infer<typeof skillCreationSchema>
+
+// export type SkillCreate = Pick<Skill, 'level'|'type'|'description'>;

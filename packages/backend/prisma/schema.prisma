@@ -25,6 +25,7 @@ model User {
   specialty String
   email     String  @unique
   password  String
+  verified  Boolean
 
   role      Role    @default(USER)
   missions Mission[]     

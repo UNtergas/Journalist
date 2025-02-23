@@ -14,9 +14,11 @@ export class User {
   company: string;
   school:  string;
   specialty: string;
+  verified: boolean;
   role : Role;
-
-  missions: Mission[]  
+  
+  // We don't need this field for user profile manipulation
+  // missions: Mission[]  
 }
 
 export type Profile = Omit<User, 'password'>;
