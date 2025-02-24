@@ -21,8 +21,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Apprentis",
-  description: "Formation en sécurité informatique par la voie de l’apprentissage ",
+  title: "Journalist",
+  description: "An utils for register, note your work or study progress as a fun an interactive mission",
 };
 
 export default function RootLayout({

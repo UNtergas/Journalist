@@ -19,7 +19,15 @@ export const missionCreationSchema = z.object({
     title: z.string(),
     description: z.string(),
     userId : z.number(),
+    to : z.date(),
 })
 .required();
 
+export const missionUpdateSchema = missionCreationSchema.extend({
+    activityIds: z.number(),
+    from: z.number(),
+})
+.partial();
+
 export type MissionCreation = z.infer<typeof missionCreationSchema>
+export type MissionUpdate = z.infer<typeof missionUpdateSchema>

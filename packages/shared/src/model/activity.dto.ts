@@ -14,6 +14,7 @@ export class Activity{
     skills : SkillOnActivity[];
     notes : Note[];
 }
+
 export class ActivityDetailed extends Activity {
     skillsDetailed : Skill[];
 };

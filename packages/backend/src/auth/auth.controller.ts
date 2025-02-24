@@ -101,7 +101,6 @@ export class AuthController {
   }
 
 
-
   @HttpCode(HttpStatus.OK)
   @Post("check-auth")
   async checkAuth(

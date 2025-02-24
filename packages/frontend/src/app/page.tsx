@@ -1,58 +1,39 @@
-import Image from 'next/image';
-import { Button, Container, Group } from '@mantine/core';
-import Link from 'next/link';
-import classes from '@/styles/home.module.css';
+'use-client'
+import { Container, Title, Text, Group, Button, Image, Flex } from "@mantine/core";
+import classes from './home-page.module.css'
+import image from '../../public/tree.png'
+import { IconBrandGithub } from "@tabler/icons-react";
 
 export default function Home() {
   return (
-    <div
-      style={{
-        minHeight: '100vh', // Full screen height
-        minWidth: '100vw',  // Full screen width
-        position: 'relative',
-        overflow: 'hidden', // Prevent scrollbars
-      }}
-    >
-      {/* Blurred Background */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "url('/homepage.png') no-repeat center center fixed",
-          backgroundSize: 'cover',
-          filter: 'blur(10px)', // Adjust the blur intensity
-          zIndex: -1, // Ensure it's behind all content
-        }}
-      ></div>
-
-      {/* Main Content */}
-      <Container fluid className={classes.root}>
-        {/* Logo in the top-left corner */}
-        <div className={classes.logo}>
-          <Image src="/logo.png" alt="Logo" width={120} height={80} />
+    <Container size='md'>
+      <div className={classes.inner}>
+        <div className={classes.content}>
+          <Flex gap='xl'>   
+            <Group>
+              <Title className={classes.title}>
+                An <span className={classes.highlight}> interactive</span> journal website <br /> that
+                you can track your working progress.
+              </Title>
+              <Text c="dimmed" mt="md">
+                Support end to end data encryption with a fun playground to visualize your task
+                into missions and rewards.
+              </Text>
+              <Group mt={30}>
+                <Button radius='xl' size="md" className={classes.control}>
+                  Start now
+                </Button>
+                <Button variant="default" radius='xl' size="md" className={classes.control} leftSection={<IconBrandGithub size={16}/>}>
+                  <a href="https://github.com/UNtergas/Journalist">
+                    Github
+                  </a>
+                </Button>
+              </Group>
+            </Group>
+            <Image src={image.src} className={classes.image} alt="hero"/>
+          </Flex>
         </div>
-
-        {/* Button row */}
-        <div className={classes.buttonArea}>
-          <Group align="center" justify="center" gap="xl">
-            <Button size="xl" radius="sm" variant="filled" color="red.2">
-              <Link href="/user">ÉTUDIANTS</Link>
-            </Button>
-            <Button size="xl" radius="sm" variant="filled" color="red.2">
-              <Link href="/tutor">ENSEIGNANTS</Link>
-            </Button>
-            <Button size="xl" radius="sm" variant="filled" color="red.2">
-              <Link href="/company">ENTREPRISES</Link>
-            </Button>
-            <Button size="xl" radius="sm" variant="filled" color="red.2">
-              <Link href="/admin">ADMINISTRATION</Link>
-            </Button>
-          </Group>
-        </div>
-      </Container>
-    </div>
+      </div>
+    </Container>
   );
 }

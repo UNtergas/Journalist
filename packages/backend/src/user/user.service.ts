@@ -25,10 +25,10 @@ export class UserService {
       },
     });
   }
-  async createOne(CreateData: RegisterDTO): Promise<User> {
+  async createOne(creationData: RegisterDTO): Promise<User> {
     return PRISMA.user.create({
       data: {
-        ...CreateData,
+        ...creationData,
         company: "default",
         school: "default",
         specialty: "default",
@@ -40,13 +40,13 @@ export class UserService {
 
   async updateOne(
     id: number,
-    UpdateData: Partial<Omit<User, "id">>,
+    updateData: Partial<Omit<User, "id">>,
   ): Promise<User> {
     return PRISMA.user.update({
       where: {
         id: id,
       },
-      data: UpdateData,
+      data: updateData,
     });
   }
 }

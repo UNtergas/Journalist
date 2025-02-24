@@ -34,36 +34,11 @@ export async function middleware(req: NextRequest) {
     // Redirect authenticated users away from sign-in/sign-up
     if (pathname === "/signIn" || pathname === "/signUp") {
       let redirectUrl = "/";
-      if (userRole === ROLE.STUDENT) {
+      if (userRole === ROLE.USER) {
         redirectUrl = "/user";
-      } else if (userRole === ROLE.TUTOR) {
-        redirectUrl = "/tutor";
-      } else if (userRole === ROLE.ADMIN) {
-        redirectUrl = "/admin";
-      } else if (userRole === ROLE.COMPANY) {
-        redirectUrl = "/company";
       }
       const url = req.nextUrl.clone();
       url.pathname = redirectUrl;
-      return NextResponse.redirect(url);
-    }
-
-    // Role-based redirection logic
-    if (userRole === ROLE.STUDENT && !pathname.startsWith("/user")) {
-      const url = req.nextUrl.clone();
-      url.pathname = "/user";
-      return NextResponse.redirect(url);
-    } else if (userRole === ROLE.TUTOR && !pathname.startsWith("/tutor")) {
-      const url = req.nextUrl.clone();
-      url.pathname = "/tutor";
-      return NextResponse.redirect(url);
-    } else if (userRole === ROLE.ADMIN && !pathname.startsWith("/admin")) {
-      const url = req.nextUrl.clone();
-      url.pathname = "/admin";
-      return NextResponse.redirect(url);
-    } else if (userRole === ROLE.COMPANY && !pathname.startsWith("/company")) {
-      const url = req.nextUrl.clone();
-      url.pathname = "/company";
       return NextResponse.redirect(url);
     }
 
@@ -80,9 +55,6 @@ export const config = {
     "/signIn",
     "/signUp",
     "/user/:path*",
-    "/admin/:path*",
-    "/tutor/:path*",
-    "/company/:path*",
   ],
 };
 

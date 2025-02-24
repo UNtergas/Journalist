@@ -1,13 +1,9 @@
 import { 
-  Activity, 
   APIException, 
-  Mission, 
-  ActivityCreation,
-  MissionDetailed, 
-  RegisterDTO, 
   ResponseObject, 
   SignInResponse, 
-  User 
+  User, 
+  APIResponse
 } from '@shared/frontend';
 
 
@@ -62,7 +58,7 @@ class ApiClient{
       const res = await ApiClient.sendRequest<"signIn",SignInResponse>('POST', '/api/auth/login', body);
       return res.signIn;
     },
-    signUp: async (name:string, email: string, password: string): Promise<User> => {
+    signUp: async (name: string, email: string, password: string): Promise<User> => {
       const body = {name, email, password };
       const res = await ApiClient.sendRequest<"signUp", User>('POST', '/api/auth/register', body);
       return res.signUp;
@@ -71,6 +67,10 @@ class ApiClient{
       const res = await ApiClient.sendRequest<"signOut",string>('POST', '/api/auth/logout');
       return res.signOut;
     },
+    sendMail: async (email: string): Promise<APIResponse> => {
+      const res = await ApiClient.sendRequest<"Api",APIResponse>('GET',`/api/auth/sendmail?email=${email}`)
+      return res.Api;
+    },
     checkAuth: async (): Promise<boolean> => {
       const res = await ApiClient.sendRequest<"checkAuth",boolean>('POST', '/api/auth/check-auth');
       return res.checkAuth;
@@ -78,40 +78,12 @@ class ApiClient{
   }
 
   static User = {
-    getMe: async (): Promise<User> => {
-      const res = await ApiClient.sendRequest<"user", User>('GET', '/api/user/me', undefined);
+    getCurrent: async (): Promise<User> => {
+      const res = await ApiClient.sendRequest<"user", User>('GET', '/api/user/current');
       return res.user;
     },
-    getAll: async (): Promise<User[]> => {
-      const res = await ApiClient.sendRequest<"users", User[]>('GET', '/api/user/all', undefined);
-      return res.users;
-    },
-    resetPassword: async (oldPassword: string, newPassword: string): Promise<User> => {
-      const body = { oldPassword, newPassword };
-      const res = await ApiClient.sendRequest<"user", User>('POST', '/api/user/reset-password', body);
-      return res.user;
-    },
-    createCompany: async (data: RegisterDTO): Promise<User> => {
-      const res = await ApiClient.sendRequest<"company", User>('POST', '/api/user/company', data);
-      return res.company;
-    },
-    createTutor: async (data: RegisterDTO): Promise<User> => {
-      const res = await ApiClient.sendRequest<"tutor", User>('POST', '/api/user/tutor', data);
-      return res.tutor;
-    }
-  }
-  static Activity = {
-    getMissions: async (): Promise<MissionDetailed[]> => {
-      const res = await ApiClient.sendRequest<"missions", MissionDetailed[]>('GET', '/api/activity/missions', undefined);
-      return res.missions;
-    },
-    createActivity: async ( data: ActivityCreation): Promise<Activity> => {
-      const res = await ApiClient.sendRequest<"activity", Activity>('POST', '/api/activity', data);
-      return res.activity;
-    },
-  }
-  
-  
+    // reset-password by sending mail
+  }  
 }
 
 export default ApiClient;

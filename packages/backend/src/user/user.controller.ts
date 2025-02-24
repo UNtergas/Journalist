@@ -8,7 +8,7 @@ import { APIResponse, ResponseObject, User, API } from '@shared/backend';
 @Controller('/api/user')
 export class UserController {
   constructor(
-    private userSerivce: UserService,
+    private userService: UserService,
     private authService: AuthService,
   ) {}
 
@@ -18,7 +18,7 @@ export class UserController {
   async getCurrentUser(
     @CurrentUserId() userId: number
   ): Promise< ResponseObject<"user", User>> {
-    const user = await this.userSerivce.findOneById(userId)
+    const user = await this.userService.findOneById(userId)
     if(!user){
       throw new NotFoundException("User not found");
     }
@@ -32,11 +32,11 @@ export class UserController {
   ): Promise<ResponseObject<"Api",APIResponse>>{
     const {encryptedText,iv,key} = this.authService.splitSecret(decodeURIComponent(secret));
     const userEmail = this.authService.inputDecryption(encryptedText,iv,key);
-    const user = await this.userSerivce.findOneByEmail(userEmail);
+    const user = await this.userService.findOneByEmail(userEmail);
     if(!user){
       throw new NotFoundException("User not found")
     }
-    await this.userSerivce.updateOne(user.id,
+    await this.userService.updateOne(user.id,
       {
         verified:true
       }
@@ -51,7 +51,7 @@ export class UserController {
     @CurrentUserId() userId: number,
     @Body() body:{ oldPassword: string; newPassword: string}
   ): Promise<ResponseObject<"Api", APIResponse>>{
-    const oldUser = await this.userSerivce.findOneById(userId);
+    const oldUser = await this.userService.findOneById(userId);
     if(!oldUser){
       throw new NotFoundException("User not found");
     }
@@ -63,7 +63,7 @@ export class UserController {
     const newPassword = this.authService.generateHashed(
       body.newPassword,
     );
-    await this.userSerivce.updateOne(userId, {
+    await this.userService.updateOne(userId, {
       password: newPassword,
     });
     return { Api: API.SUCCESS };
