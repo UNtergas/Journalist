@@ -3,6 +3,7 @@ import { Container, Title, Text, Group, Button, Image, Flex } from "@mantine/cor
 import classes from './home-page.module.css'
 import image from '../../public/tree.png'
 import { IconBrandGithub } from "@tabler/icons-react";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -21,7 +22,7 @@ export default function Home() {
               </Text>
               <Group mt={30}>
                 <Button radius='xl' size="md" className={classes.control}>
-                  Start now
+                  <Link href="/user">Start now</Link>
                 </Button>
                 <Button variant="default" radius='xl' size="md" className={classes.control} leftSection={<IconBrandGithub size={16}/>}>
                   <a href="https://github.com/UNtergas/Journalist">

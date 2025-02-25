@@ -19,18 +19,28 @@ class ApiClient{
   private static async sendRequest<K extends string,V>(
     method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
     endpoint: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    body?: any,
-    token?: string
+    {body,query}:{
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body?: any,
+      query?: { [key: string]: string }
+    } = {}  //default parameter
   ): Promise<ResponseObject<K, V>> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const options: any = {
       method,
       headers: {
-        // 'Content-Type': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : '',
       }
     }
+    const url = new URL(`${window.location.protocol}//${window.location.host}`);
+    url.pathname = endpoint;
+
+    // Append query parameters to the URL
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        url.searchParams.append(key, String(value));
+      });
+    }
+
     // Only set Content-Type if the body is not FormData
     if (body && !(body instanceof FormData) ) {
       options.headers['Content-Type'] = 'application/json';
@@ -38,7 +48,7 @@ class ApiClient{
     } else if (body instanceof FormData) {
         options.body = body; // Let the browser handle the Content-Type
     }
-    const response = await fetch(endpoint, options);
+    const response = await fetch(url, options);
     if (!response.ok) {
       // Throw an error with the status and status text
       const errorData = await response.json(); // Optionally parse the response body
@@ -55,20 +65,22 @@ class ApiClient{
   static Auth ={
     signIn: async (email: string, password: string): Promise<SignInResponse> => {
       const body = { email, password };
-      const res = await ApiClient.sendRequest<"signIn",SignInResponse>('POST', '/api/auth/login', body);
+      const res = await ApiClient.sendRequest<"signIn",SignInResponse>('POST', '/api/auth/login', {body});
       return res.signIn;
     },
     signUp: async (name: string, email: string, password: string): Promise<User> => {
       const body = {name, email, password };
-      const res = await ApiClient.sendRequest<"signUp", User>('POST', '/api/auth/register', body);
+      const res = await ApiClient.sendRequest<"signUp", User>('POST', '/api/auth/register', {body});
       return res.signUp;
     },
     signOut: async (): Promise<string> => {
-      const res = await ApiClient.sendRequest<"signOut",string>('POST', '/api/auth/logout');
+      const res = await ApiClient.sendRequest<"signOut",string>('POST', '/api/auth/logout',);
       return res.signOut;
     },
     sendMail: async (email: string): Promise<APIResponse> => {
-      const res = await ApiClient.sendRequest<"Api",APIResponse>('GET',`/api/auth/sendmail?email=${email}`)
+      const res = await ApiClient.sendRequest<"Api",APIResponse>(
+        'GET','/api/auth/sendmail',{query:{email:email}}
+      )
       return res.Api;
     },
     checkAuth: async (): Promise<boolean> => {
@@ -87,3 +99,4 @@ class ApiClient{
 }
 
 export default ApiClient;
+

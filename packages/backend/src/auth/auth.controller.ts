@@ -89,17 +89,34 @@ export class AuthController {
   ): Promise<ResponseObject<"Api",APIResponse>>{
     const user = await this.userService.findOneByEmail(email);
     if (!user) {
-      throw new NotFoundException("User not found")
+      throw new NotFoundException("User not found");
     }
     if (user.verified) {
-      throw new BadRequestException("User is already verified")
+      throw new BadRequestException("User is already verified");
     }
-    const {encryptedText,iv,key} = await this.authService.generateEncryption(user.email)
-    const secret = this.authService.combineSecret(encryptedText,iv,key)
-    await this.mailService.sendUserConfirmation(user,secret)
+    const {encryptedText,iv,key} = await this.authService.generateEncryption(user.email);
+    const secret = this.authService.combineSecret(encryptedText,iv,key);
+    await this.mailService.sendUserConfirmation(user,secret);
     return { Api: API.SUCCESS }
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Get("send-mail-reset-password")
+  async sendResetPasswordEmail(
+    @Query('email') email: string
+  ): Promise<ResponseObject<"secret",string>>{
+    const user = await this.userService.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    if (!user.verified) {
+      throw new UnauthorizedException("This user is not yet verified");
+    }
+    const {encryptedText,iv,key} = await this.authService.generateEncryption(user.email)
+    const secret = this.authService.combineSecret(encryptedText,iv,key);
+    await this.mailService.sendResetPassword(user);
+    return { secret };
+  }
 
   @HttpCode(HttpStatus.OK)
   @Post("check-auth")

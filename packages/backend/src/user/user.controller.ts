@@ -49,16 +49,21 @@ export class UserController {
   @Permissions(SecurityScope.USER_CURRENT_WRITE)
   async resetPassword(
     @CurrentUserId() userId: number,
-    @Body() body:{ oldPassword: string; newPassword: string}
+    @Body() body:{ secret: string; newPassword: string}
   ): Promise<ResponseObject<"Api", APIResponse>>{
-    const oldUser = await this.userService.findOneById(userId);
-    if(!oldUser){
+    if(!userId){
       throw new NotFoundException("User not found");
     }
+    const {encryptedText,iv,key} = this.authService.splitSecret(body.secret);
+    const userEmail = this.authService.inputDecryption(encryptedText,iv,key);
+    const user = await this.userService.findOneByEmail(userEmail);
+    if(!user){
+      throw new NotFoundException("User not found")
+    }
     if (
-      this.authService.verifyHashed(body.oldPassword, oldUser.password) === false
+      userId !== user.id
     ) {
-      throw new ConflictException("Old Password is incorrect");
+      throw new ConflictException("The origin of the request is not correct");
     }
     const newPassword = this.authService.generateHashed(
       body.newPassword,

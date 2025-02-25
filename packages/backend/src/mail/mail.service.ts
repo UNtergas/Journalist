@@ -35,12 +35,12 @@ export class MailService {
   }
 
   async sendResetPassword(user: User){
-    const url = `${CONFIG.ENDPOINT}/api/user/reset-password`;
+    const url = `${CONFIG.ENDPOINT}/reset-password`;
     const options: MailingOptions ={
       targetMail: user.email,
       subject: 'Reset password for Journalist',
-      template: './reset-password', // `.hbs` extension is appended automatically
-      context: { // filling curly brackets inside hbs template with content
+      template: './reset-password',
+      context: { 
         name: user.name,
         url,
       },
