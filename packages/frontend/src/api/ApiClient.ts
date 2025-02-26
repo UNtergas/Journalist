@@ -1,13 +1,13 @@
-import { 
-  APIException, 
-  ResponseObject, 
-  SignInResponse, 
-  User, 
+import {
+  APIException,
+  ResponseObject,
+  SignInResponse,
+  User,
   APIResponse
 } from '@shared/frontend';
 
 
-class ApiClient{
+class ApiClient {
   /**
    * Sends a request to the server
    * @param method
@@ -16,10 +16,10 @@ class ApiClient{
    * @param token
    *
    */
-  private static async sendRequest<K extends string,V>(
+  private static async sendRequest<K extends string, V>(
     method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
     endpoint: string,
-    {body,query}:{
+    { body, query }: {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body?: any,
       query?: { [key: string]: string }
@@ -42,11 +42,11 @@ class ApiClient{
     }
 
     // Only set Content-Type if the body is not FormData
-    if (body && !(body instanceof FormData) ) {
+    if (body && !(body instanceof FormData)) {
       options.headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(body); // Serialize JSON payload
     } else if (body instanceof FormData) {
-        options.body = body; // Let the browser handle the Content-Type
+      options.body = body; // Let the browser handle the Content-Type
     }
     const response = await fetch(url, options);
     if (!response.ok) {
@@ -62,29 +62,29 @@ class ApiClient{
     return await response.json();
   }
 
-  static Auth ={
+  static Auth = {
     signIn: async (email: string, password: string): Promise<SignInResponse> => {
       const body = { email, password };
-      const res = await ApiClient.sendRequest<"signIn",SignInResponse>('POST', '/api/auth/login', {body});
+      const res = await ApiClient.sendRequest<"signIn", SignInResponse>('POST', '/api/auth/login', { body });
       return res.signIn;
     },
     signUp: async (name: string, email: string, password: string): Promise<User> => {
-      const body = {name, email, password };
-      const res = await ApiClient.sendRequest<"signUp", User>('POST', '/api/auth/register', {body});
+      const body = { name, email, password };
+      const res = await ApiClient.sendRequest<"signUp", User>('POST', '/api/auth/register', { body });
       return res.signUp;
     },
     signOut: async (): Promise<string> => {
-      const res = await ApiClient.sendRequest<"signOut",string>('POST', '/api/auth/logout',);
+      const res = await ApiClient.sendRequest<"signOut", string>('POST', '/api/auth/logout',);
       return res.signOut;
     },
     sendMail: async (email: string): Promise<APIResponse> => {
-      const res = await ApiClient.sendRequest<"Api",APIResponse>(
-        'GET','/api/auth/sendmail',{query:{email:email}}
-      )
+      const res = await ApiClient.sendRequest<"Api", APIResponse>(
+        'GET', '/api/auth/sendmail', { query: { email: email } }
+      );
       return res.Api;
     },
     checkAuth: async (): Promise<boolean> => {
-      const res = await ApiClient.sendRequest<"checkAuth",boolean>('POST', '/api/auth/check-auth');
+      const res = await ApiClient.sendRequest<"checkAuth", boolean>('POST', '/api/auth/check-auth');
       return res.checkAuth;
     }
   }
@@ -95,7 +95,7 @@ class ApiClient{
       return res.user;
     },
     // reset-password by sending mail
-  }  
+  }
 }
 
 export default ApiClient;

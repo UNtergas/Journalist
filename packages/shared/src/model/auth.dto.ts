@@ -7,16 +7,19 @@ export class SignInResponse {
 }
 
 export const signInSchema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(8,'Password must be of length > 8'),
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(8, 'Password must be of length > 8'),
 })
-.required();
+  .required();
 
 export const registerSchema = signInSchema.extend({
   name: z.string(),
 })
-.required();
+  .required();
 
+export const sendForgetPasswordSchema = z.object({
+  email: z.string().email('Invalid email format')
+})
 export type SignInDTO = z.infer<typeof signInSchema>
 export type RegisterDTO = z.infer<typeof registerSchema>
-
+export type SendForgetPasswordDTO = z.infer<typeof sendForgetPasswordSchema>
