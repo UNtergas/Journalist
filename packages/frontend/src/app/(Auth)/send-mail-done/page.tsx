@@ -2,7 +2,7 @@ import { Button, Container, Group, Text, Title } from '@mantine/core';
 import classes from './send-mail.module.css';
 import Link from 'next/link';
 
-export function NotFoundTitle() {
+export default function SendMailDone() {
   return (
     <Container className={classes.root}>
       <div className={classes.label}>Mail sented</div>

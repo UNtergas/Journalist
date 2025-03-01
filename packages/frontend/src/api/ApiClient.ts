@@ -78,11 +78,21 @@ class ApiClient {
       return res.signOut;
     },
     sendMail: async (email: string): Promise<APIResponse> => {
+      console.log('sendmail')
       const res = await ApiClient.sendRequest<"Api", APIResponse>(
-        'GET', '/api/auth/sendmail', { query: { email: email } }
+        'GET', '/api/auth/send-mail-reset-password', { query: { email: email } }
       );
       return res.Api;
     },
+    verifyMail: async(secret: string): Promise<APIResponse> =>{
+      const res = await ApiClient.sendRequest<"Api",APIResponse>(
+        'GET',
+        '/api/user/verified',
+        {query:{secret:secret}}
+      )
+      return res.Api;
+    },
+    
     checkAuth: async (): Promise<boolean> => {
       const res = await ApiClient.sendRequest<"checkAuth", boolean>('POST', '/api/auth/check-auth');
       return res.checkAuth;
@@ -95,6 +105,19 @@ class ApiClient {
       return res.user;
     },
     // reset-password by sending mail
+    resetPassword: async (secret: string, password: string): Promise<APIResponse> =>{
+      const body= { password }
+      console.log("inside api client",body,secret)
+      const res = await ApiClient.sendRequest<"Api",APIResponse>(
+        'POST',
+        '/api/user/reset-password',
+        {
+          body,
+          query:{secret:secret}
+        },
+      );
+      return res.Api;
+    }
   }
 }
 

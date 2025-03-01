@@ -10,8 +10,9 @@ export default function PrivateLayout({ children }: Readonly<{ children: React.R
         <div className="relative min-h-screen min-w-screen overflow-hidden">
           {/* Blurred Background */}
           <div
-            className="absolute inset-0 bg-cover bg-center filter blur-lg"
-            style={{ backgroundImage: "url('/homepage.png')" }}
+            className="absolute inset-0 bg-[#fafafa]"
+            // className="absolute inset-0 bg-cover bg-center filter blur-lg"
+            // style={{ backgroundImage: "url('/homepage.png')" }}
           ></div>
     
           {/* Content */}

@@ -104,7 +104,7 @@ export class AuthController {
   @Get("send-mail-reset-password")
   async sendResetPasswordEmail(
     @Query('email') email: string
-  ): Promise<ResponseObject<"secret",string>>{
+  ): Promise<ResponseObject<"Api",APIResponse>>{
     const user = await this.userService.findOneByEmail(email);
     if (!user) {
       throw new NotFoundException("User not found");
@@ -114,8 +114,8 @@ export class AuthController {
     }
     const {encryptedText,iv,key} = await this.authService.generateEncryption(user.email)
     const secret = this.authService.combineSecret(encryptedText,iv,key);
-    await this.mailService.sendResetPassword(user);
-    return { secret };
+    await this.mailService.sendResetPassword(user,secret);
+    return { Api: API.SUCCESS };
   }
 
   @HttpCode(HttpStatus.OK)

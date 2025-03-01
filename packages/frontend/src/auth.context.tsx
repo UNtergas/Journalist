@@ -32,7 +32,7 @@ export const AuthProvider = ({children} : {children: React.ReactNode}) => {
 
     const fetchCurrentUser = async () => {
         try {
-            const res = await ApiClient.User.getMe();
+            const res = await ApiClient.User.getCurrent();
             setCurrentUser(res);
         }catch(e){
             throw e;

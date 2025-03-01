@@ -21,7 +21,8 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendUserConfirmation(user: User, secret: string) {
-    const url = `${CONFIG.ENDPOINT}/api/user/verified/?secret=${encodeURIComponent(secret)}`;
+    // const url = `${CONFIG.ENDPOINT}/api/user/verified/?secret=${encodeURIComponent(secret)}`;
+    const url = `${CONFIG.ENDPOINT}/verify-mail/?secret=${encodeURIComponent(secret)}`;
     const options: MailingOptions = {
       targetMail: user.email,
       subject: 'Account creation for Journalist',
@@ -34,8 +35,8 @@ export class MailService {
     await this._sendMail(options)
   }
 
-  async sendResetPassword(user: User){
-    const url = `${CONFIG.ENDPOINT}/reset-password`;
+  async sendResetPassword(user: User, secret: string){
+    const url = `${CONFIG.ENDPOINT}/reset-password/?secret=${encodeURIComponent(secret)}`;
     const options: MailingOptions ={
       targetMail: user.email,
       subject: 'Reset password for Journalist',

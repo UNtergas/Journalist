@@ -5,7 +5,7 @@ import { UseFormReturnType } from "@mantine/form";
 
 
 interface LoginFormProps<T> {
-  loading: boolean,
+  loading: boolean;
   form: UseFormReturnType<T>;
   handleSubmit: (values: T) => void;
 }
@@ -33,10 +33,10 @@ export default function LoginForm<T>(
           <PasswordInput label="Password" placeholder="Your password" required mt="md" {...form.getInputProps('password')} />
           <Group justify="space-between" mt="lg">
             <Anchor component='button' size='sm'>
-              <Link href='/send-mail'>Forgot-password</Link>
+              <Link href='/forgot-password'>Forgot-password</Link>
             </Anchor>
           </Group>
-          <Button fullWidth mt="xl" color='red.1' loading={loading} loaderProps={{ type: 'dots' }} type="submit">
+          <Button fullWidth mt="xl" loading={loading} loaderProps={{ type: 'dots' }} type="submit">
             Sign in
           </Button>
         </form>

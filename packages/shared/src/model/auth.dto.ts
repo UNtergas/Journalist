@@ -20,6 +20,11 @@ export const registerSchema = signInSchema.extend({
 export const sendForgetPasswordSchema = z.object({
   email: z.string().email('Invalid email format')
 })
+
+export const resetPasswordSchema = z.object({
+  password: z.string().min(8,'Password must be of length > 8'),
+})
 export type SignInDTO = z.infer<typeof signInSchema>
 export type RegisterDTO = z.infer<typeof registerSchema>
 export type SendForgetPasswordDTO = z.infer<typeof sendForgetPasswordSchema>
+export type resetPasswordDTO = z.infer<typeof resetPasswordSchema>

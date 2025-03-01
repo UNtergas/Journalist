@@ -36,6 +36,7 @@ export default function ForgotPassword() {
       setLoading(false);
       window.location.href = '/send-mail-done';
     } catch (e) {
+      console.log(e);
       setLoading(false);
       if (e instanceof APIException) {
         toast.warn(e.message);
@@ -53,7 +54,7 @@ export default function ForgotPassword() {
 
       <Paper withBorder shadow="md" p={30} radius="md" mt="xl">
         <form onSubmit={form.onSubmit(handleSubmit)}>
-          <TextInput label="Your email" placeholder="email@journalist.dev" required {...form.getInputProps('name')} />
+          <TextInput label="Your email" placeholder="email@journalist.dev" required {...form.getInputProps('email')} />
           <Group justify="space-between" mt="lg" className={classes.controls}>
             <Anchor c="dimmed" size="sm" className={classes.control} href='/signIn' component={Link}>
               <Center inline>
@@ -63,7 +64,7 @@ export default function ForgotPassword() {
                 </Box>
               </Center>
             </Anchor>
-            <Button className={classes.control} loading={loading}>Reset password</Button>
+            <Button className={classes.control} loading={loading} type='submit'>Reset password</Button>
           </Group>
         </form>
       </Paper>
